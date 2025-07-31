@@ -1,103 +1,172 @@
+"use client";
+
+import { useState, useEffect } from "react";
+import { AnimatePresence, motion } from "framer-motion";
 import Image from "next/image";
 
-export default function Home() {
-  return (
-    <div className="font-sans grid grid-rows-[20px_1fr_20px] items-center justify-items-center min-h-screen p-8 pb-20 gap-16 sm:p-20">
-      <main className="flex flex-col gap-[32px] row-start-2 items-center sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={180}
-          height={38}
-          priority
-        />
-        <ol className="font-mono list-inside list-decimal text-sm/6 text-center sm:text-left">
-          <li className="mb-2 tracking-[-.01em]">
-            Get started by editing{" "}
-            <code className="bg-black/[.05] dark:bg-white/[.06] font-mono font-semibold px-1 py-0.5 rounded">
-              src/app/page.tsx
-            </code>
-            .
-          </li>
-          <li className="tracking-[-.01em]">
-            Save and see your changes instantly.
-          </li>
-        </ol>
+const images = [
+  "DSCF7271-Enhanced-NR.jpg",
+  "DSCF7271-Enhanced-NR-2.jpg",
+  "DSCF7283.jpg",
+  "DSCF7289.jpg",
+  "DSCF7290.jpg",
+  "DSCF7292-Enhanced-NR-2.jpg",
+  "DSCF7297-2.jpg",
+  "DSCF7297-3.jpg",
+  "DSCF7299-Enhanced-NR.jpg",
+  "DSCF7301-Enhanced-NR.jpg",
+  "DSCF7303.jpg",
+  "DSCF7304-Enhanced-NR.jpg",
+  "DSCF7305-Enhanced-NR.jpg",
+  "DSCF7307-Enhanced-NR.jpg",
+  "DSCF7309-Enhanced-NR.jpg",
+  "DSCF7311-Enhanced-NR.jpg",
+  "DSCF7314-Enhanced-SR.jpg",
+  "DSCF7317.jpg",
+  "DSCF7317-Enhanced-NR.jpg",
+  "DSCF7318.jpg",
+  "DSCF7321-Enhanced-NR-2.jpg",
+  "DSCF7322-Enhanced-NR.jpg",
+  "DSCF7323-Enhanced-NR-2.jpg",
+  "DSCF7324-Enhanced-NR.jpg",
+  "DSCF7331-Enhanced-SR.jpg",
+  "DSCF7333.jpg",
+  "DSCF7335.jpg",
+  "DSCF7337-Enhanced-NR-2.jpg",
+  "DSCF7337-Enhanced-NR.jpg",
+  "DSCF7338-Enhanced-NR.jpg",
+  "DSCF7339-Enhanced-NR.jpg",
+  "DSCF7342.jpg",
+  "DSCF7343-Enhanced-NR-2.jpg",
+  "DSCF7343-Enhanced-NR.jpg",
+  "DSCF7348-Enhanced-NR.jpg",
+  "DSCF7351-Enhanced-NR.jpg",
+  "DSCF7355-Enhanced-NR.jpg",
+  "DSCF7360.jpg",
+  "DSCF7368-Enhanced-NR.jpg",
+  "DSCF7371-Enhanced-NR.jpg",
+  "DSCF7378-Enhanced-NR.jpg",
+  "DSCF7385-Enhanced-NR.jpg",
+  "DSCF7387-Enhanced-NR.jpg",
+  "DSCF7390-Enhanced-NR.jpg",
+  "DSCF7395.jpg",
+  "DSCF7399-Enhanced-SR.jpg",
+  "DSCF7401-Enhanced-NR.jpg",
+].map((name) => `/images/${name}`);
 
-        <div className="flex gap-4 items-center flex-col sm:flex-row">
-          <a
-            className="rounded-full border border-solid border-transparent transition-colors flex items-center justify-center bg-foreground text-background gap-2 hover:bg-[#383838] dark:hover:bg-[#ccc] font-medium text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 sm:w-auto"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
+const variants = {
+  initial: { opacity: 0 },
+  animate: {
+    opacity: 1,
+    transition: { duration: 0.8 },
+  },
+  exit: {
+    opacity: 0,
+    transition: { duration: 0.9 },
+  },
+};
+
+export default function Page() {
+  const [index, setIndex] = useState(0);
+  const [loaded, setLoaded] = useState(false);
+  const [imageDimensions, setImageDimensions] = useState<Array<{ width: number; height: number } | null>>(
+    images.map(() => null)
+  );
+
+  const containerWidth = 1000;
+  const containerHeight = 600;
+
+  useEffect(() => {
+    images.forEach((src, i) => {
+      const img = new window.Image();
+      img.src = src;
+      img.onload = () => {
+        setImageDimensions((prev) => {
+          const newDims = [...prev];
+          newDims[i] = { width: img.naturalWidth, height: img.naturalHeight };
+          return newDims;
+        });
+      };
+    });
+  }, []);
+
+  const nextStep = () => {
+    setIndex((prev) => {
+      let next;
+      do {
+        next = Math.floor(Math.random() * images.length);
+      } while (next === prev);
+      return next;
+    });
+  };
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+      nextStep();
+    }, 10000);
+    return () => clearInterval(interval);
+  }, []);
+
+  useEffect(() => {
+    setLoaded(false);
+  }, [index]);
+
+  const currentDims = imageDimensions[index];
+
+  let displayWidth = 0;
+  let displayHeight = 0;
+  if (currentDims) {
+    const scale = Math.min(
+      containerWidth / currentDims.width,
+      containerHeight / currentDims.height,
+      1
+    );
+    displayWidth = currentDims.width * scale;
+    displayHeight = currentDims.height * scale;
+  }
+
+  return (
+    <main
+      className="flex flex-col items-center justify-center min-h-screen"
+      style={{
+        backgroundImage: "url(/images/purp1.avif)",
+        backgroundSize: "cover",
+        backgroundPosition: "center",
+        backgroundRepeat: "no-repeat",
+      }}
+    >
+      <div className="w-full flex justify-center pb-16">
+        <img
+          src="/images/pearlmae.jpg"
+          alt="Logo"
+          className="h-30 object-contain rounded-xl"
+        />
+      </div>
+      <div className="relative w-[1000px] h-[600px] flex items-center justify-center overflow-hidden">
+        <AnimatePresence initial={false}>
+          <motion.div
+            key={images[index]}
+            variants={variants}
+            initial="initial"
+            animate="animate"
+            exit="exit"
+            className="absolute top-0 left-0 w-full h-full flex items-center justify-center"
           >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={20}
-              height={20}
-            />
-            Deploy now
-          </a>
-          <a
-            className="rounded-full border border-solid border-black/[.08] dark:border-white/[.145] transition-colors flex items-center justify-center hover:bg-[#f2f2f2] dark:hover:bg-[#1a1a1a] hover:border-transparent font-medium text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 w-full sm:w-auto md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Read our docs
-          </a>
-        </div>
-      </main>
-      <footer className="row-start-3 flex gap-[24px] flex-wrap items-center justify-center">
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/file.svg"
-            alt="File icon"
-            width={16}
-            height={16}
-          />
-          Learn
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/window.svg"
-            alt="Window icon"
-            width={16}
-            height={16}
-          />
-          Examples
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/globe.svg"
-            alt="Globe icon"
-            width={16}
-            height={16}
-          />
-          Go to nextjs.org →
-        </a>
-      </footer>
-    </div>
+            {currentDims ? (
+              <Image
+                src={images[index]}
+                alt="slide"
+                width={displayWidth}
+                height={displayHeight}
+                onLoad={() => setLoaded(true)}
+                className={`rounded-xl transition-opacity duration-900 ${loaded ? "opacity-100" : "opacity-0"}`}
+              />
+            ) : (
+              <div className="text-white">Loading image...</div> // Optional placeholder
+            )}
+          </motion.div>
+        </AnimatePresence>
+      </div>
+    </main>
   );
 }
