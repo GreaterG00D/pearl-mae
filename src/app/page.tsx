@@ -62,7 +62,7 @@ const variants = {
   },
   exit: {
     opacity: 0,
-    transition: { duration: 0.9 },
+    transition: { duration: 0.8 },
   },
 };
 
@@ -127,7 +127,7 @@ export default function Page() {
 
   return (
     <main
-      className="flex flex-col items-center justify-center min-h-screen"
+      className="flex flex-col items-center min-h-screen pt-16"
       style={{
         backgroundImage: "url(/images/purp1.avif)",
         backgroundSize: "cover",
@@ -135,22 +135,28 @@ export default function Page() {
         backgroundRepeat: "no-repeat",
       }}
     >
-      <div className="w-full flex justify-center pb-16">
-        <img
-          src="/images/pearlmae.jpg"
-          alt="Logo"
-          className="h-30 object-contain rounded-xl"
-        />
-      </div>
-      <div className="relative w-[1000px] h-[600px] flex items-center justify-center overflow-hidden">
-        <AnimatePresence initial={false}>
+      <img
+        src="/images/pearlmae.jpg"
+        alt="Logo"
+        className="h-30 object-contain rounded-xl mb-8"
+      />
+      <div
+        className="w-full max-w-[1000px] px-4 sm:px-8"
+        style={{
+          height: `${containerHeight}px`,
+          display: "flex",
+          alignItems: "flex-start",
+          justifyContent: "center",
+        }}
+      >
+        <AnimatePresence mode="wait">
           <motion.div
             key={images[index]}
             variants={variants}
             initial="initial"
             animate="animate"
             exit="exit"
-            className="absolute top-0 left-0 w-full h-full flex items-center justify-center"
+            className="flex"
           >
             {currentDims ? (
               <Image
@@ -162,7 +168,7 @@ export default function Page() {
                 className={`rounded-xl transition-opacity duration-900 ${loaded ? "opacity-100" : "opacity-0"}`}
               />
             ) : (
-              <div className="text-white">Loading image...</div> // Optional placeholder
+              <div className="text-white">Loading image...</div>
             )}
           </motion.div>
         </AnimatePresence>
