@@ -66,11 +66,7 @@ export default function Page() {
   };
 
   const nextStep = () => {
-    let next;
-    do {
-      next = Math.floor(Math.random() * images.length);
-    } while (next === currentIndex);
-
+    const next = (currentIndex + 1) % images.length;
     const newHistory = history.slice(0, pointer + 1);
     newHistory.push(next);
     setHistory(newHistory);
