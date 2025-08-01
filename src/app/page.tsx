@@ -25,10 +25,11 @@ export default function Page() {
   const [imageDimensions, setImageDimensions] = useState<Array<{ width: number; height: number } | null>>(
     images.map(() => null)
   );
+  const [containerWidth, setContainerWidth] = useState(1000);
 
   const timerRef = useRef<NodeJS.Timeout | null>(null);
+  const containerRef = useRef<HTMLDivElement>(null);
 
-  const containerWidth = 1000;
   const containerHeight = 600;
 
   const currentIndex = history[pointer];
@@ -45,6 +46,16 @@ export default function Page() {
         });
       };
     });
+  }, []);
+
+  useEffect(() => {
+    const handleResize = () => {
+      setContainerWidth(containerRef.current?.clientWidth || 1000);
+    };
+
+    handleResize();
+    window.addEventListener("resize", handleResize);
+    return () => window.removeEventListener("resize", handleResize);
   }, []);
 
   const scheduleNext = () => {
@@ -94,6 +105,8 @@ export default function Page() {
     displayHeight = currentDims.height * scale;
   }
 
+  const hbSide = currentDims ? Math.min(300, Math.min(displayWidth, displayHeight)) : 0;
+
   return (
     <main
       className="flex flex-col items-center min-h-screen pt-16"
@@ -110,15 +123,29 @@ export default function Page() {
         className="h-30 object-contain rounded-xl mb-8"
       />
       <div
-        className="w-full max-w-[1000px] px-4 sm:px-8"
+        ref={containerRef}
+        className="w-full max-w-[1000px] px-4 sm:px-8 relative"
         style={{
           height: `${containerHeight}px`,
           display: "flex",
           alignItems: "flex-start",
           justifyContent: "center",
-          position: "relative",
         }}
       >
+        {/* Static background image (below slideshow) */}
+        {hbSide > 0 && (
+          <div className="absolute mt-10 top-0 left-1/2 transform -translate-x-1/2 z-0">
+            <Image
+              src="/images/hb.png"
+              alt="Static Base"
+              width={hbSide}
+              height={hbSide}
+              className="rounded-xl"
+            />
+          </div>
+        )}
+
+        {/* Slideshow image (on top of static image) */}
         <AnimatePresence mode="wait">
           <motion.div
             key={images[currentIndex]}
@@ -126,7 +153,7 @@ export default function Page() {
             initial="initial"
             animate="animate"
             exit="exit"
-            className="flex"
+            className="flex z-10"
           >
             {currentDims ? (
               <Image
@@ -143,7 +170,8 @@ export default function Page() {
           </motion.div>
         </AnimatePresence>
 
-        <div className="absolute inset-0 z-10 flex" style={{ cursor: "pointer" }}>
+        {/* Overlay click areas */}
+        <div className="absolute inset-0 z-20 flex" style={{ cursor: "pointer" }}>
           <div
             className="w-1/2 h-full"
             onClick={() => {
@@ -158,6 +186,18 @@ export default function Page() {
               scheduleNext();
             }}
           />
+        </div>
+      </div>
+
+      {/* Footer Text */}
+      <div className="mt-6 text-center text-[#38069f] leading-tight">
+        <div className="text-sm">Built with love for</div>
+        <div className="flex items-center justify-center text-xl gap-1 mt-1">
+          <span>Grandma Peggy</span>
+          <img src="/favicon.ico" alt="icon" width={14} height={14} />
+          <span>Aunt Pearl</span>
+          <img src="/favicon.ico" alt="icon" width={14} height={14} />
+          <span>Cousin Mae</span>
         </div>
       </div>
     </main>
